@@ -7,6 +7,8 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
+    <%= tag :meta, name: "token", content: gen_token(@conn, @user) %>
+
     <title>Collaborative Calendar!</title>
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
   </head>
