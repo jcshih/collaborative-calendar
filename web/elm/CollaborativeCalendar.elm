@@ -1,5 +1,7 @@
 module CollaborativeCalendar where
 
+import Calendar
+
 import Html exposing (..)
 import StartApp
 import Effects exposing (Effects, Never)
@@ -47,7 +49,17 @@ update action model =
 
 view : Signal.Address Action -> Model -> Html
 view address model =
-  div [] [ text (toString model) ]
+  div []
+    [ calendar model.activeMonth
+    ]
+
+
+calendar : ActiveMonth -> Html
+calendar { year, month, days } =
+  table []
+    [ Calendar.header year month
+    , Calendar.body days
+    ]
 
 
 -- SIGNALS

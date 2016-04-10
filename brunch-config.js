@@ -20,7 +20,7 @@ exports.config = {
     watched: [
       "web/static",
       "test/static",
-      "web/elm/CollaborativeCalendar.elm"
+      "web/elm"
     ],
 
     public: "priv/static"
