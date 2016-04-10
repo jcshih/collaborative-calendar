@@ -1,4 +1,4 @@
-module Calendar (header, body) where
+module Calendar (header, body, advanceMonth) where
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -7,12 +7,14 @@ import Array exposing (Array, fromList, get)
 
 -- VIEW
 
-header : Int -> Int -> Html
-header year month =
+header : Int -> Int -> Attribute -> Attribute -> Html
+header year month decrMonthHandler incrMonthHandler =
   thead []
     [ tr []
         [ td [ colspan 7 ]
-            [ text ((getMonthName month) ++ " " ++ (toString year))
+            [ button [ decrMonthHandler ] [ text "<" ]
+            , text ((getMonthName month) ++ " " ++ (toString year))
+            , button [ incrMonthHandler ] [ text ">" ]
             ]
         ]
         , tr [] (List.map dayLabel [ 0, 1, 2, 3, 4, 5, 6 ])
@@ -61,3 +63,18 @@ dayNames =
 getDayName : Int -> String
 getDayName dayIndex =
   Maybe.withDefault "" (get dayIndex dayNames)
+
+
+advanceMonth : Int -> Int -> Int -> (Int, Int)
+advanceMonth year month increment =
+  let
+    newMonth = month + increment
+    newYear =
+      if newMonth < 0 then
+        year - 1
+      else if newMonth > 11 then
+        year + 1
+      else
+        year
+  in
+    (newYear, newMonth % 12)

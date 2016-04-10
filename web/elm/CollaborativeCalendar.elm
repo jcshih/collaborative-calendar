@@ -3,6 +3,7 @@ module CollaborativeCalendar where
 import Calendar
 
 import Html exposing (..)
+import Html.Events exposing (onClick)
 import StartApp
 import Effects exposing (Effects, Never)
 import Task exposing (Task)
@@ -33,6 +34,8 @@ init =
 type Action
   = NoOp
   | SetActiveMonth ActiveMonth
+  | DecrementMonth
+  | IncrementMonth
 
 
 update : Action -> Model -> (Model, Effects Action)
@@ -44,20 +47,38 @@ update action model =
     SetActiveMonth month ->
       ({ model | activeMonth = month }, Effects.none)
 
+    DecrementMonth ->
+      let
+        { year, month } = model.activeMonth
+        (newYear, newMonth) = Calendar.advanceMonth year month -1
+      in
+        (model, sendMonthRequest (newYear, newMonth))
+
+    IncrementMonth ->
+      let
+        { year, month } = model.activeMonth
+        (newYear, newMonth) = Calendar.advanceMonth year month 1
+      in
+        (model, sendMonthRequest (newYear, newMonth))
+
 
 -- VIEW
 
 view : Signal.Address Action -> Model -> Html
 view address model =
   div []
-    [ calendar model.activeMonth
+    [ calendar address model.activeMonth
     ]
 
 
-calendar : ActiveMonth -> Html
-calendar { year, month, days } =
+calendar : Signal.Address Action -> ActiveMonth -> Html
+calendar address { year, month, days } =
   table []
-    [ Calendar.header year month
+    [ Calendar.header
+        year
+        month
+        (onClick address DecrementMonth)
+        (onClick address IncrementMonth)
     , Calendar.body days
     ]
 
@@ -91,6 +112,12 @@ monthRequestMailbox =
 
 
 -- EFFECTS
+
+sendMonthRequest : (Int, Int) -> Effects Action
+sendMonthRequest date =
+  Signal.send monthRequestMailbox.address date
+    |> Effects.task
+    |> Effects.map (always NoOp)
 
 
 -- MAIN
