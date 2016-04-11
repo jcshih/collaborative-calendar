@@ -13,13 +13,17 @@ const initialActiveMonth = {
 };
 const initialState = {
   initialActiveMonth,
-  getMonth: initialActiveMonth
+  getMonth: initialActiveMonth,
+  getReservations: {
+    user: [],
+    other: []
+  }
 };
 
 const elmDiv = document.getElementById("elm-main");
 const elmApp = Elm.embed(Elm.CollaborativeCalendar, elmDiv, initialState);
 
-const { getMonth, monthRequest } = elmApp.ports;
+const { getMonth, monthRequest, getReservations } = elmApp.ports;
 
 monthRequest.subscribe(([ year, month ]) => {
   getMonth.send({
@@ -33,3 +37,7 @@ let channel = socket.channel("reservations:booker", {});
 channel.join()
   .receive("ok", resp => { console.log("Joined successfully", resp) })
   .receive("error", resp => { console.log("Unable to join", resp) });
+
+channel.on("all_reservations", reservations => {
+  getReservations.send(reservations);
+});

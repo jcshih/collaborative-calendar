@@ -1,6 +1,8 @@
 defmodule CollaborativeCalendar.Reservation do
   use CollaborativeCalendar.Web, :model
 
+  alias CollaborativeCalendar.Reservation
+
   schema "reservations" do
     field :user, :string
     field :date, Ecto.Date
@@ -20,5 +22,23 @@ defmodule CollaborativeCalendar.Reservation do
   def changeset(model, params \\ :empty) do
     model
     |> cast(params, @required_fields, @optional_fields)
+  end
+
+  def user_reservations(user) do
+    from r in Reservation, where: r.user == ^user
+  end
+
+  def other_reservations(user) do
+    from r in Reservation, where: r.user != ^user
+  end
+end
+
+defimpl Poison.Encoder, for: CollaborativeCalendar.Reservation do
+  def encode(model, opts) do
+    {:ok, { year, month, day }} = Ecto.Date.dump model.date
+    %{year: year,
+      month: month,
+      day: day
+     } |> Poison.Encoder.encode(opts)
   end
 end

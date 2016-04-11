@@ -12,7 +12,8 @@ import Task exposing (Task)
 -- MODEL
 
 type alias Model =
-  { activeMonth : ActiveMonth
+  { activeMonth  : ActiveMonth
+  , reservations : Reservations
   }
 
 
@@ -23,9 +24,30 @@ type alias ActiveMonth =
   }
 
 
+type alias Reservations =
+  { user  : List Reservation
+  , other : List Reservation
+  }
+
+
+type alias Reservation =
+  { year  : Int
+  , month : Int
+  , day   : Int
+  }
+
+
+initialReservations : Reservations
+initialReservations =
+  { user  = []
+  , other = []
+  }
+
+
 init : Model
 init =
-  { activeMonth = initialActiveMonth
+  { activeMonth  = initialActiveMonth
+  , reservations = initialReservations
   }
 
 
@@ -36,6 +58,7 @@ type Action
   | SetActiveMonth ActiveMonth
   | DecrementMonth
   | IncrementMonth
+  | SetReservations Reservations
 
 
 update : Action -> Model -> (Model, Effects Action)
@@ -61,33 +84,41 @@ update action model =
       in
         (model, sendMonthRequest (newYear, newMonth))
 
+    SetReservations reservations ->
+      ({ model | reservations = reservations}, Effects.none)
+
 
 -- VIEW
 
 view : Signal.Address Action -> Model -> Html
 view address model =
   div []
-    [ calendar address model.activeMonth
+    [ calendar address model.activeMonth model.reservations
     ]
 
 
-calendar : Signal.Address Action -> ActiveMonth -> Html
-calendar address { year, month, days } =
+calendar : Signal.Address Action -> ActiveMonth -> Reservations -> Html
+calendar address { year, month, days } { user, other } =
   table []
-    [ Calendar.header
-        year
-        month
+    [ Calendar.header year month
         (onClick address DecrementMonth)
         (onClick address IncrementMonth)
     , Calendar.body days
+        (user |> filterReservations year month |> List.map .day)
+        (other |> filterReservations year month |> List.map .day)
     ]
+
+
+filterReservations : Int -> Int -> List Reservation -> List Reservation
+filterReservations y m reservations =
+  List.filter (\{ year, month } -> y == year && m == month) reservations
 
 
 -- SIGNALS
 
 actions : Signal Action
 actions =
-  activeMonthSignal
+  Signal.merge activeMonthSignal reservationsSignal
 
 
 activeMonthSignal : Signal Action
@@ -109,6 +140,14 @@ port monthRequest =
 monthRequestMailbox : Signal.Mailbox (Int, Int)
 monthRequestMailbox =
   Signal.mailbox (0, 0)
+
+
+port getReservations : Signal Reservations
+
+
+reservationsSignal : Signal Action
+reservationsSignal =
+  Signal.map SetReservations getReservations
 
 
 -- EFFECTS

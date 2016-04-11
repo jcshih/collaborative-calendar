@@ -1,4 +1,6 @@
-module Calendar (header, body, advanceMonth) where
+module Calendar
+  ( header, body, advanceMonth
+  ) where
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -17,13 +19,13 @@ header year month decrMonthHandler incrMonthHandler =
             , button [ incrMonthHandler ] [ text ">" ]
             ]
         ]
-        , tr [] (List.map dayLabel [ 0, 1, 2, 3, 4, 5, 6 ])
+        , tr [] (List.map dayLabel [0..6])
     ]
 
 
-body : List (List Int) -> Html
-body days =
-  tbody [] (List.map row days)
+body : List (List Int) -> List Int -> List Int -> Html
+body days userReservations otherReservations =
+  tbody [] (List.map (row userReservations otherReservations) days)
 
 
 dayLabel : Int -> Html
@@ -31,14 +33,34 @@ dayLabel day =
   td [] [ text (getDayName day) ]
 
 
-row : List Int -> Html
-row week =
-  tr [] (List.map date week)
+row : List Int -> List Int -> List Int -> Html
+row userReservations otherReservations week =
+  tr [] (List.map (date userReservations otherReservations) week)
 
 
-date : Int -> Html
-date day =
+date : List Int -> List Int -> Int -> Html
+date userReservations otherReservations day =
+  if List.member day userReservations then
+    reservedDate day
+  else if List.member day otherReservations then
+    unavailableDate day
+  else
+    availableDate day
+
+
+availableDate : Int -> Html
+availableDate day =
   td [] [ text (toString day) ]
+
+
+reservedDate : Int -> Html
+reservedDate day =
+  td [ style [ ("background", "green") ] ] [ text (toString day) ]
+
+
+unavailableDate : Int -> Html
+unavailableDate day =
+  td [ style [ ("background", "red") ] ] [ text (toString day) ]
 
 
 -- HELPERS
