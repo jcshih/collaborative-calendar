@@ -61,6 +61,10 @@ type Action
   | SetReservations Reservations
   | MakeReservation Reservation
   | CancelReservation Reservation
+  | AddUserReservation Reservation
+  | AddOtherReservation Reservation
+  | RemoveUserReservation Reservation
+  | RemoveOtherReservation Reservation
 
 
 update : Action -> Model -> (Model, Effects Action)
@@ -95,6 +99,40 @@ update action model =
     CancelReservation reservation ->
       (model, sendCancellationRequest reservation)
 
+    AddUserReservation reservation ->
+      let
+        { reservations } = model
+        { user } = reservations
+        newReservations = { reservations | user = reservation :: user }
+      in
+        ({ model | reservations = newReservations }, Effects.none)
+
+    AddOtherReservation reservation ->
+      let
+        { reservations } = model
+        { other } = reservations
+        newReservations = { reservations | other = reservation :: other }
+      in
+        ({ model | reservations = newReservations }, Effects.none)
+
+    RemoveUserReservation reservation ->
+      let
+        { reservations } = model
+        { user } = reservations
+        newReservations =
+          { reservations | user = List.filter (\r -> r /= reservation) user }
+      in
+        ({ model | reservations = newReservations }, Effects.none)
+
+    RemoveOtherReservation reservation ->
+      let
+        { reservations } = model
+        { other } = reservations
+        newReservations =
+          { reservations | other = List.filter (\r -> r /= reservation) other }
+      in
+        ({ model | reservations = newReservations }, Effects.none)
+
 
 -- VIEW
 
@@ -128,7 +166,14 @@ filterReservations y m reservations =
 
 actions : Signal Action
 actions =
-  Signal.merge activeMonthSignal reservationsSignal
+  Signal.mergeMany
+    [ activeMonthSignal
+    , reservationsSignal
+    , userReservationSignal
+    , otherReservationSignal
+    , userCancellationSignal
+    , otherCancellationSignal
+    ]
 
 
 activeMonthSignal : Signal Action
@@ -178,6 +223,38 @@ port cancellationRequest =
 cancellationRequestMailbox : Signal.Mailbox Reservation
 cancellationRequestMailbox =
   Signal.mailbox (Reservation 0 0 0)
+
+
+port userReservation : Signal Reservation
+
+
+userReservationSignal : Signal Action
+userReservationSignal =
+  Signal.map AddUserReservation userReservation
+
+
+port otherReservation : Signal Reservation
+
+
+otherReservationSignal : Signal Action
+otherReservationSignal =
+  Signal.map AddOtherReservation otherReservation
+
+
+port userCancellation : Signal Reservation
+
+
+userCancellationSignal : Signal Action
+userCancellationSignal =
+  Signal.map RemoveUserReservation userCancellation
+
+
+port otherCancellation : Signal Reservation
+
+
+otherCancellationSignal : Signal Action
+otherCancellationSignal =
+  Signal.map RemoveOtherReservation otherCancellation
 
 
 -- EFFECTS

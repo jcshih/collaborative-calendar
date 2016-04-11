@@ -11,13 +11,19 @@ const initialActiveMonth = {
   month: currentMonth,
   days: cal.monthDays(currentYear, currentMonth)
 };
+const initialReservation = { year: 0, month: 0, day: 0 };
+
 const initialState = {
   initialActiveMonth,
   getMonth: initialActiveMonth,
   getReservations: {
     user: [],
     other: []
-  }
+  },
+  userReservation: initialReservation,
+  otherReservation: initialReservation,
+  userCancellation: initialReservation,
+  otherCancellation: initialReservation
 };
 
 const elmDiv = document.getElementById("elm-main");
@@ -39,15 +45,31 @@ ports.monthRequest.subscribe(([ year, month ]) => {
 });
 
 ports.reservationRequest.subscribe(date => {
-  console.log(date);
   channel.push("make_reservation", date)
          .receive("error", resp => console.log(resp));
 });
 
-ports.cancellationRequest.subscribe(data => {
-  console.log(data);
+ports.cancellationRequest.subscribe(date => {
+  channel.push("cancel_reservation", date)
+         .receive("error", resp => console.log(resp));
 });
 
 channel.on("all_reservations", reservations => {
   ports.getReservations.send(reservations);
+});
+
+channel.on("user_reservation_update", reservation => {
+  ports.userReservation.send(reservation);
+});
+
+channel.on("other_reservation_update", reservation => {
+  ports.otherReservation.send(reservation);
+});
+
+channel.on("user_cancellation_update", reservation => {
+  ports.userCancellation.send(reservation);
+});
+
+channel.on("other_cancellation_update", reservation => {
+  ports.otherCancellation.send(reservation);
 });

@@ -31,6 +31,10 @@ defmodule CollaborativeCalendar.Reservation do
   def other_reservations(user) do
     from r in Reservation, where: r.user != ^user
   end
+
+  def find_by_date(date) do
+    from r in Reservation, where: r.date == ^date
+  end
 end
 
 defimpl Poison.Encoder, for: CollaborativeCalendar.Reservation do
