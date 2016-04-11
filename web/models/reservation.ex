@@ -22,6 +22,7 @@ defmodule CollaborativeCalendar.Reservation do
   def changeset(model, params \\ :empty) do
     model
     |> cast(params, @required_fields, @optional_fields)
+    |> unique_constraint(:date)
   end
 
   def user_reservations(user) do

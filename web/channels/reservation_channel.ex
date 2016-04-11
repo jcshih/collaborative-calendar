@@ -5,7 +5,7 @@ defmodule CollaborativeCalendar.ReservationChannel do
 
   intercept ["reservation_updated", "cancellation_updated"]
 
-  def join("reservations:booker", payload, socket) do
+  def join("reservations:booker", _payload, socket) do
     send self, :after_join
     {:ok, socket}
   end
@@ -36,18 +36,7 @@ defmodule CollaborativeCalendar.ReservationChannel do
     end
   end
 
-  def handle_out("reservation_updated", reservation, socket) do
-    if socket.assigns.user == reservation.user do
-      push socket, "user_reservation_update", reservation
-    else
-      push socket, "other_reservation_update", reservation
-    end
-
-    {:noreply, socket}
-  end
-
   def handle_in("cancel_reservation", payload, socket) do
-    user = socket.assigns.user
     { :ok, date } = Ecto.Date.cast payload
 
     [reservation] = Reservation.find_by_date(date) |> Repo.all
@@ -58,6 +47,16 @@ defmodule CollaborativeCalendar.ReservationChannel do
       {:error, _changeset} ->
         {:reply, {:error, "Failed to cancel reservation"}, socket}
     end
+  end
+
+  def handle_out("reservation_updated", reservation, socket) do
+    if socket.assigns.user == reservation.user do
+      push socket, "user_reservation_update", reservation
+    else
+      push socket, "other_reservation_update", reservation
+    end
+
+    {:noreply, socket}
   end
 
   def handle_out("cancellation_updated", reservation, socket) do
