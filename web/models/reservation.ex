@@ -42,7 +42,7 @@ defimpl Poison.Encoder, for: CollaborativeCalendar.Reservation do
   def encode(model, opts) do
     {:ok, { year, month, day }} = Ecto.Date.dump model.date
     %{year: year,
-      month: month,
+      month: month - 1,
       day: day
      } |> Poison.Encoder.encode(opts)
   end

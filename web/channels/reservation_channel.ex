@@ -1,5 +1,6 @@
 defmodule CollaborativeCalendar.ReservationChannel do
   use CollaborativeCalendar.Web, :channel
+  import CollaborativeCalendar.Helpers.Date, only: [date_from_js: 1]
 
   alias CollaborativeCalendar.Reservation
 
@@ -25,7 +26,7 @@ defmodule CollaborativeCalendar.ReservationChannel do
 
   def handle_in("make_reservation", payload, socket) do
     user = socket.assigns.user
-    { :ok, date } = Ecto.Date.cast payload
+    date = date_from_js payload
 
     case Repo.insert(%Reservation{user: user, date: date}) do
       {:ok, r} ->
@@ -37,7 +38,7 @@ defmodule CollaborativeCalendar.ReservationChannel do
   end
 
   def handle_in("cancel_reservation", payload, socket) do
-    { :ok, date } = Ecto.Date.cast payload
+    date = date_from_js payload
 
     [reservation] = Reservation.find_by_date(date) |> Repo.all
     case Repo.delete(reservation) do
