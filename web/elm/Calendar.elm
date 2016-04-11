@@ -23,9 +23,10 @@ header year month decrMonthHandler incrMonthHandler =
     ]
 
 
-body : List (List Int) -> List Int -> List Int -> Html
-body days userReservations otherReservations =
-  tbody [] (List.map (row userReservations otherReservations) days)
+body : List (List Int) -> List Int -> List Int -> (Int -> Attribute) -> (Int -> Attribute) -> Html
+body days userReservations otherReservations makeReservation cancelReservation =
+  tbody []
+    (List.map (row userReservations otherReservations makeReservation cancelReservation) days)
 
 
 dayLabel : Int -> Html
@@ -33,29 +34,30 @@ dayLabel day =
   td [] [ text (getDayName day) ]
 
 
-row : List Int -> List Int -> List Int -> Html
-row userReservations otherReservations week =
-  tr [] (List.map (date userReservations otherReservations) week)
+row : List Int -> List Int -> (Int -> Attribute) -> (Int -> Attribute) -> List Int -> Html
+row userReservations otherReservations makeReservation cancelReservation week =
+  tr [] (List.map (date userReservations otherReservations makeReservation cancelReservation) week)
 
 
-date : List Int -> List Int -> Int -> Html
-date userReservations otherReservations day =
+date : List Int -> List Int -> (Int -> Attribute) -> (Int -> Attribute) -> Int -> Html
+date userReservations otherReservations makeReservation cancelReservation day =
   if List.member day userReservations then
-    reservedDate day
+    reservedDate day cancelReservation
   else if List.member day otherReservations then
     unavailableDate day
   else
-    availableDate day
+    availableDate day makeReservation
 
 
-availableDate : Int -> Html
-availableDate day =
-  td [] [ text (toString day) ]
+availableDate : Int -> (Int -> Attribute) -> Html
+availableDate day makeReservation =
+  td [ makeReservation day ] [ text (toString day) ]
 
 
-reservedDate : Int -> Html
-reservedDate day =
-  td [ style [ ("background", "green") ] ] [ text (toString day) ]
+reservedDate : Int -> (Int -> Attribute) -> Html
+reservedDate day cancelReservation =
+  td [ cancelReservation day, style [ ("background", "green") ] ]
+    [ text (toString day) ]
 
 
 unavailableDate : Int -> Html

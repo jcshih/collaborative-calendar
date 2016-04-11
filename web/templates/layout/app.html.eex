@@ -9,7 +9,7 @@
 
     <%= tag :meta, name: "token", content: gen_token(@conn, @user) %>
 
-    <title>Collaborative Calendar!</title>
+    <title>Collaborative Calendar</title>
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
   </head>
 

@@ -20,4 +20,16 @@ defmodule CollaborativeCalendar.ReservationChannel do
 
     {:noreply, socket}
   end
+
+  def handle_in("make_reservation", payload, socket) do
+    user = socket.assigns.user
+    { :ok, date } = Ecto.Date.cast payload
+
+    case Repo.insert(%Reservation{user: user, date: date}) do
+      {:ok, r} ->
+        {:noreply, socket}
+      {:error, _changeset} ->
+        {:reply, {:error, "Failed to make reservation"}, socket}
+    end
+  end
 end

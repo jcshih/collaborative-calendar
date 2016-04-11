@@ -59,6 +59,8 @@ type Action
   | DecrementMonth
   | IncrementMonth
   | SetReservations Reservations
+  | MakeReservation Reservation
+  | CancelReservation Reservation
 
 
 update : Action -> Model -> (Model, Effects Action)
@@ -87,6 +89,12 @@ update action model =
     SetReservations reservations ->
       ({ model | reservations = reservations}, Effects.none)
 
+    MakeReservation reservation ->
+      (model, sendReservationRequest reservation)
+
+    CancelReservation reservation ->
+      (model, sendCancellationRequest reservation)
+
 
 -- VIEW
 
@@ -106,6 +114,8 @@ calendar address { year, month, days } { user, other } =
     , Calendar.body days
         (user |> filterReservations year month |> List.map .day)
         (other |> filterReservations year month |> List.map .day)
+        (\day -> onClick address (MakeReservation (Reservation year month day)))
+        (\day -> onClick address (CancelReservation (Reservation year month day)))
     ]
 
 
@@ -150,11 +160,45 @@ reservationsSignal =
   Signal.map SetReservations getReservations
 
 
+port reservationRequest : Signal Reservation
+port reservationRequest =
+  reservationRequestMailbox.signal
+
+
+reservationRequestMailbox : Signal.Mailbox Reservation
+reservationRequestMailbox =
+  Signal.mailbox (Reservation 0 0 0)
+
+
+port cancellationRequest : Signal Reservation
+port cancellationRequest =
+  cancellationRequestMailbox.signal
+
+
+cancellationRequestMailbox : Signal.Mailbox Reservation
+cancellationRequestMailbox =
+  Signal.mailbox (Reservation 0 0 0)
+
+
 -- EFFECTS
 
 sendMonthRequest : (Int, Int) -> Effects Action
 sendMonthRequest date =
   Signal.send monthRequestMailbox.address date
+    |> Effects.task
+    |> Effects.map (always NoOp)
+
+
+sendReservationRequest : Reservation -> Effects Action
+sendReservationRequest reservation =
+  Signal.send reservationRequestMailbox.address reservation
+    |> Effects.task
+    |> Effects.map (always NoOp)
+
+
+sendCancellationRequest : Reservation -> Effects Action
+sendCancellationRequest reservation =
+  Signal.send cancellationRequestMailbox.address reservation
     |> Effects.task
     |> Effects.map (always NoOp)
 
