@@ -45,6 +45,6 @@ exports.config = {
 
   npm: {
     enabled: true,
-    whitelist: ["phoenix", "phoenix_html", "calendar"]
+    whitelist: ["phoenix", "phoenix_html", "calendar", "alertify.js"]
   }
 };

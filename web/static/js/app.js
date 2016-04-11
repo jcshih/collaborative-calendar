@@ -1,5 +1,11 @@
 import socket from "./socket";
+import { prettyDate } from "./util";
 import { Calendar } from "calendar";
+import alertify from "alertify.js";
+
+alertify.logPosition("top right")
+        .closeLogOnClick(true)
+        .maxLogItems(4);
 
 const cal = new Calendar();
 const currentDate = new Date();
@@ -60,16 +66,20 @@ channel.on("all_reservations", reservations => {
 
 channel.on("user_reservation_update", reservation => {
   ports.userReservation.send(reservation);
+  alertify.success(`You have reserved ${prettyDate(reservation)}`);
 });
 
 channel.on("other_reservation_update", reservation => {
   ports.otherReservation.send(reservation);
+  alertify.error(`Someone else has reserved ${prettyDate(reservation)}`);
 });
 
 channel.on("user_cancellation_update", reservation => {
   ports.userCancellation.send(reservation);
+  alertify.success(`You have no longer reserved ${prettyDate(reservation)}`);
 });
 
 channel.on("other_cancellation_update", reservation => {
   ports.otherCancellation.send(reservation);
+  alertify.error(`${prettyDate(reservation)} has become available`);
 });
