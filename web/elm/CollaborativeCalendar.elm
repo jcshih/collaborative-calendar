@@ -4,6 +4,7 @@ import Calendar
 
 import Html exposing (..)
 import Html.Events exposing (onClick)
+import Html.Attributes exposing (class)
 import StartApp
 import Effects exposing (Effects, Never)
 import Task exposing (Task)
@@ -139,13 +140,16 @@ update action model =
 view : Signal.Address Action -> Model -> Html
 view address model =
   div []
-    [ calendar address model.activeMonth model.reservations
+    [ header [ class "header__title" ]
+        [ h1 [] [ text "Collaborative Calendar" ]
+        ]
+    , calendar address model.activeMonth model.reservations
     ]
 
 
 calendar : Signal.Address Action -> ActiveMonth -> Reservations -> Html
 calendar address { year, month, days } { user, other } =
-  table []
+  table [ class "calendar" ]
     [ Calendar.header year month
         (onClick address DecrementMonth)
         (onClick address IncrementMonth)

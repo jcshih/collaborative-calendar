@@ -1,0 +1,63 @@
+.header__title {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.calendar {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 18px;
+}
+
+.calendar thead tr {
+  margin-top: 15px;
+}
+
+.calendar thead td {
+  text-align: center;
+}
+
+.calendar__button--month-nav {
+  border: none;
+  background: none;
+  margin: 0 5px;
+}
+
+.calendar__button--month-nav:focus {
+  outline: none;
+}
+
+.calendar tbody td {
+  border: 1px solid black;
+  text-align: right;
+  vertical-align: top;
+  width: 14%;
+  position: relative;
+}
+
+.calendar tbody td:after {
+  content: '';
+  display: block;
+  margin-top: 100%;
+}
+
+.calendar__date-content {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 5px;
+}
+
+.calendar tbody td.empty {
+  border: none;
+}
+
+.calendar__date--reserved {
+  background: rgba(0, 128, 0, 0.8);
+}
+
+.calendar__date--unavailable {
+  background: rgba(255, 0, 0, 0.8);
+}

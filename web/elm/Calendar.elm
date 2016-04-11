@@ -14,9 +14,11 @@ header year month decrMonthHandler incrMonthHandler =
   thead []
     [ tr []
         [ td [ colspan 7 ]
-            [ button [ decrMonthHandler ] [ text "<" ]
+            [ button [ decrMonthHandler, class "calendar__button--month-nav" ]
+                [ text "<" ]
             , text ((getMonthName month) ++ " " ++ (toString year))
-            , button [ incrMonthHandler ] [ text ">" ]
+            , button [ incrMonthHandler, class "calendar__button--month-nav" ]
+                [ text ">" ]
             ]
         ]
         , tr [] (List.map dayLabel [0..6])
@@ -41,7 +43,9 @@ row userReservations otherReservations makeReservation cancelReservation week =
 
 date : List Int -> List Int -> (Int -> Attribute) -> (Int -> Attribute) -> Int -> Html
 date userReservations otherReservations makeReservation cancelReservation day =
-  if List.member day userReservations then
+  if day == 0 then
+    td [ class "empty" ] [ div [ class "calendar__date-content" ] [] ]
+  else if List.member day userReservations then
     reservedDate day cancelReservation
   else if List.member day otherReservations then
     unavailableDate day
@@ -51,18 +55,23 @@ date userReservations otherReservations makeReservation cancelReservation day =
 
 availableDate : Int -> (Int -> Attribute) -> Html
 availableDate day makeReservation =
-  td [ makeReservation day ] [ text (toString day) ]
+  td [ makeReservation day ] [ dateContent day ]
 
 
 reservedDate : Int -> (Int -> Attribute) -> Html
 reservedDate day cancelReservation =
-  td [ cancelReservation day, style [ ("background", "green") ] ]
-    [ text (toString day) ]
+  td [ cancelReservation day, class "calendar__date--reserved" ]
+    [ dateContent day ]
 
 
 unavailableDate : Int -> Html
 unavailableDate day =
-  td [ style [ ("background", "red") ] ] [ text (toString day) ]
+  td [ class "calendar__date--unavailable" ] [ dateContent day ]
+
+
+dateContent : Int -> Html
+dateContent day =
+  div [ class "calendar__date-content" ] [ text (toString day) ]
 
 
 -- HELPERS
