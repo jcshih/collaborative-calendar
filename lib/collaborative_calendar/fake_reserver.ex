@@ -33,7 +33,7 @@ defmodule CollaborativeCalendar.FakeReserver do
 
   def random_date() do
     {current_date, _} = :calendar.local_time
-    days = :calendar.date_to_gregorian_days(current_date) + :rand.uniform(60) - 30
+    days = :calendar.date_to_gregorian_days(current_date) + :rand.uniform(120) - 60
     {year, month, day} = :calendar.gregorian_days_to_date days
     %{year: year, month: month, day: day} |> Ecto.Date.cast!
   end
