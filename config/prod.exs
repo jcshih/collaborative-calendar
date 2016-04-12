@@ -2,7 +2,10 @@ use Mix.Config
 
 config :collaborative_calendar, CollaborativeCalendar.Endpoint,
   http: [port: {:system, "PORT"}],
-  url: [scheme: "https", host: "https://limitless-depths-10324.herokuapp.com/", port: 443],
+  url: [
+    scheme: "https",
+    host: "limitless-depths-10324.herokuapp.com",
+    port: 443],
   force_ssl: [rewrite_on: [:x_forwarded_proto]],
   cache_static_manifest: "priv/static/manifest.json"
 
