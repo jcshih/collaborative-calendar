@@ -12,7 +12,7 @@ defmodule CollaborativeCalendar do
       # Start the Ecto repository
       supervisor(CollaborativeCalendar.Repo, []),
       # Here you could define other workers and supervisors as children
-      # worker(CollaborativeCalendar.Worker, [arg1, arg2, arg3]),
+      worker(CollaborativeCalendar.Cron, []),
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html

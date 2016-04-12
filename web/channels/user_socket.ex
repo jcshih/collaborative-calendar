@@ -14,9 +14,7 @@ defmodule CollaborativeCalendar.UserSocket do
     end
   end
 
-  def connect(_params, socket) do
-    :error
-  end
+  def connect(_params, _socket), do: :error
 
   def id(_socket), do: nil
 end

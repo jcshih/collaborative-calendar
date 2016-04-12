@@ -15,7 +15,7 @@
 
   <body>
     <div style="background: red; position: absolute; width: 100%; top: 0; text-align: center; color: #fff;">
-      This demo app's database is reset daily.
+      This demo app's database is reset hourly.
     </div>
 
     <div class="container">
