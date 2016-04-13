@@ -13,7 +13,8 @@ defmodule CollaborativeCalendar do
       supervisor(CollaborativeCalendar.Repo, []),
       # Here you could define other workers and supervisors as children
       worker(CollaborativeCalendar.Cron, []),
-      worker(CollaborativeCalendar.FakeReserver, [])
+      worker(CollaborativeCalendar.FakeReserver, []),
+      worker(CollaborativeCalendar.FakeCanceller, [])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
